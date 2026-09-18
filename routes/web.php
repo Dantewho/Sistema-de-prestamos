@@ -8,7 +8,7 @@ use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::middleware('auth')->prefix('api')->group(function () {
@@ -18,3 +18,8 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::apiResource('solicitudes', SolicitudController::class);
     Route::apiResource('perfiles', PerfilController::class)->only(['index', 'show', 'update']);
 });
+
+
+Route::get('/usuarios', function () {
+    return view('crud.usuarios', compact('usuarios'));
+})->name('usuarios.index');
