@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventario;
 use App\Models\Solicitud;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class SolicitudController extends Controller
@@ -27,10 +30,24 @@ class SolicitudController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate($this->rules());
-        $data['usuario_solicitante_id'] = $request->user()->id;
-        $data['estado'] = 'pendiente';
 
-        return response()->json(Solicitud::create($data)->load(['solicitante', 'aula.edificio', 'inventario']), 201);
+        $solicitud = DB::transaction(function () use ($data) {
+            if ($data['tipo_solicitud'] === 'inventario') {
+                $inventario = Inventario::whereKey($data['inventario_id'])->lockForUpdate()->firstOrFail();
+
+                if ($inventario->cantidad < $data['cantidad']) {
+                    abort(422, 'La cantidad solicitada supera la existencia disponible.');
+                }
+
+                $inventario->decrement('cantidad', $data['cantidad']);
+            }
+
+            $data['estado'] = Carbon::parse($data['fecha_inicio'])->isToday() ? 'activa' : 'pendiente';
+
+            return Solicitud::create($data);
+        });
+
+        return response()->json($solicitud->load(['solicitante', 'prestador', 'aula.edificio', 'inventario']), 201);
     }
 
     public function show(Solicitud $solicitud): JsonResponse
@@ -65,6 +82,7 @@ class SolicitudController extends Controller
     {
         return [
             'identificacion' => ['nullable', 'string', 'max:100'],
+            'usuario_solicitante_id' => ['required', 'integer', 'exists:perfiles,id'],
             'tipo_solicitud' => ['required', Rule::in(['aula', 'inventario'])],
             'aula_id' => ['required_if:tipo_solicitud,aula', 'nullable', 'integer', 'exists:aulas,id'],
             'inventario_id' => ['required_if:tipo_solicitud,inventario', 'nullable', 'integer', 'exists:inventario,id'],

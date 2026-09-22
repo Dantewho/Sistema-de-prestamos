@@ -30,7 +30,9 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::apiResource('aulas', AulaController::class);
     Route::apiResource('inventario', InventarioController::class);
     Route::apiResource('solicitudes', SolicitudController::class);
-    Route::apiResource('perfiles', PerfilController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::apiResource('perfiles', PerfilController::class)
+        ->only(['index', 'show', 'store', 'update', 'destroy'])
+        ->parameters(['perfiles' => 'perfil']);
 });
 
 Route::get('/perfiles', function () {

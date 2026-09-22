@@ -39,8 +39,8 @@ class PerfilController extends Controller
     {
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'usuario' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('perfiles')->ignore($perfil)],
-            'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('perfiles')->ignore($perfil)],
+            'usuario' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('perfiles', 'usuario')->ignore($perfil->id)],
+            'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('perfiles', 'email')->ignore($perfil->id)],
             'tipo_usuario' => ['sometimes', 'required', 'integer', 'between:1,3'],
             'imagen_perfil' => ['sometimes', 'nullable', 'string', 'max:255'],
             'password' => ['sometimes', 'required', 'string', 'min:8'],

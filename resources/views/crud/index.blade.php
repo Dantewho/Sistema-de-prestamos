@@ -23,19 +23,19 @@
       <div class="col-md-4">
         <article class="loan-stat h-100">
           <span class="loan-stat-icon">#</span>
-          <div><p class="loan-stat-label">Prestamos totales</p><strong>0</strong></div>
+          <div><p class="loan-stat-label">Prestamos totales</p><strong data-request-stat="total">0</strong></div>
         </article>
       </div>
       <div class="col-md-4">
         <article class="loan-stat h-100">
           <span class="loan-stat-icon loan-stat-icon-success">&#10003;</span>
-          <div><p class="loan-stat-label">Activos</p><strong>0</strong></div>
+          <div><p class="loan-stat-label">Activos</p><strong data-request-stat="activa">0</strong></div>
         </article>
       </div>
       <div class="col-md-4">
         <article class="loan-stat h-100">
           <span class="loan-stat-icon loan-stat-icon-warning">!</span>
-          <div><p class="loan-stat-label">Pendientes</p><strong>0</strong></div>
+          <div><p class="loan-stat-label">Pendientes</p><strong data-request-stat="pendiente">0</strong></div>
         </article>
       </div>
     </div>
@@ -46,7 +46,7 @@
           <span class="loan-eyebrow">Encuentra lo que buscas</span>
           <h2 class="h4 mb-0 mt-1" id="filters-title">Filtrar prestamos</h2>
         </div>
-        <button class="btn btn-link text-decoration-none" type="reset">Limpiar filtros</button>
+        <button class="btn btn-link text-decoration-none" id="clearLoanFilters" type="button">Limpiar filtros</button>
       </div>
       <div class="p-4">
         <div class="row g-3">
@@ -86,7 +86,7 @@
           <h2 class="h4 mb-0 mt-1" id="requests-title">Prestamos registrados</h2>
         </div>
         <div class="align-items-center d-flex gap-3">
-          <span class="badge loan-badge">0 resultados</span>
+          <span class="badge loan-badge" id="requestCount">0 resultados</span>
           <button class="btn btn-coral" id="createLoanButton" type="button">+ Crear prestamo</button>
         </div>
       </div>
@@ -103,7 +103,7 @@
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="requestsTableBody">
             <tr>
               <td class="loan-empty text-center" colspan="7">
                 <div class="loan-empty-icon">+</div>

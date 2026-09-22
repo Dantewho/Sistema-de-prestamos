@@ -85,23 +85,33 @@ document.addEventListener('DOMContentLoaded', () => {
 	let buildings = [];
 
 	const loadBuildings = async () => {
-		if (!buildingSelect) {
+		if (!buildingSelect && !buildingFilter) {
 			return;
 		}
 
-		buildingSelect.innerHTML = '<option value="">Cargando edificios...</option><option value="new">Crear nuevo edificio</option>';
+		if (buildingSelect) {
+			buildingSelect.innerHTML = '<option value="">Cargando edificios...</option><option value="new">Crear nuevo edificio</option>';
+		}
 
 		try {
 			buildings = await apiRequest('/api/edificios');
-			buildingSelect.innerHTML = '<option value="">Selecciona un edificio</option><option value="new">Crear nuevo edificio</option>';
-			buildings.forEach((building) => {
-				buildingSelect.insertAdjacentHTML('beforeend', `<option value="${building.id}">${escapeHtml(building.nombre)}</option>`);
-			});
+			if (buildingSelect) {
+				buildingSelect.innerHTML = '<option value="">Selecciona un edificio</option><option value="new">Crear nuevo edificio</option>';
+				buildings.forEach((building) => {
+					buildingSelect.insertAdjacentHTML('beforeend', `<option value="${building.id}">${escapeHtml(building.nombre)}</option>`);
+				});
+			}
 			if (buildingFilter) {
 				buildingFilter.innerHTML = '<option value="">Todos los edificios</option>' + buildings.map((building) => `<option value="${building.id}">${escapeHtml(building.nombre)}</option>`).join('');
 			}
+			const editBuildingSelect = document.querySelector('#editClassroomBuilding');
+			if (editBuildingSelect) {
+				editBuildingSelect.innerHTML = '<option value="">Selecciona un edificio</option>' + buildings.map((building) => `<option value="${building.id}">${escapeHtml(building.nombre)}</option>`).join('');
+			}
 		} catch (error) {
-			buildingSelect.innerHTML = '<option value="">No se pudieron cargar los edificios</option><option value="new">Crear nuevo edificio</option>';
+			if (buildingSelect) {
+				buildingSelect.innerHTML = '<option value="">No se pudieron cargar los edificios</option><option value="new">Crear nuevo edificio</option>';
+			}
 			showFormError('classroomFormError', error);
 		}
 	};
@@ -329,5 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	showMode('aulas');
+	loadBuildings();
 	loadCatalog();
 });

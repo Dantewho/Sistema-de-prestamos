@@ -12,8 +12,9 @@
 			<form id="createLoanForm">
 				<div class="modal-body p-4">
 					<div class="alert alert-info small" role="alert">
-						Completa los datos de la solicitud. Por ahora este formulario es solo visual.
+						Completa los datos de la solicitud. Los recursos muestran la cantidad disponible.
 					</div>
+					<div class="alert alert-danger d-none" id="loanFormError" role="alert"></div>
 
 					<div class="row g-3">
 						<div class="col-md-6">
@@ -22,6 +23,13 @@
 								<option selected disabled value="">Selecciona una opcion</option>
 								<option value="INE">INE</option>
 								<option value="Credencial escolar">Credencial escolar</option>
+							</select>
+						</div>
+
+						<div class="col-md-6">
+							<label class="form-label" for="usuario_solicitante_id">Usuario solicitante</label>
+							<select class="form-select" id="usuario_solicitante_id" name="usuario_solicitante_id" required>
+								<option value="">Cargando usuarios...</option>
 							</select>
 						</div>
 
@@ -50,15 +58,21 @@
 						<div class="col-md-6" id="aulaFieldGroup">
 							<label class="form-label" for="aula_id">Aula</label>
 							<select class="form-select" id="aula_id" name="aula_id">
-								<option value="0">Selecciona un aula</option>
+								<option value="">Cargando aulas...</option>
 							</select>
 						</div>
 
 						<div class="col-md-6" id="inventoryFieldGroup">
 							<label class="form-label" for="inventario_id">Inventario</label>
 							<select class="form-select" id="inventario_id" name="inventario_id">
-								<option value="0">Selecciona un recurso</option>
+								<option value="">Cargando recursos...</option>
 							</select>
+						</div>
+
+						<div class="col-md-6 d-none" id="quantityFieldGroup">
+							<label class="form-label" for="cantidad">Cantidad</label>
+							<input class="form-control" id="cantidad" min="1" name="cantidad" type="number" value="1">
+							<div class="form-text" id="inventoryAvailabilityText"></div>
 						</div>
 
 						<div class="col-md-6">
@@ -81,7 +95,7 @@
 
 				<div class="modal-footer">
 					<button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
-					<button class="btn btn-coral" type="button">Guardar solicitud</button>
+					<button class="btn btn-coral" id="saveLoanButton" type="submit">Guardar solicitud</button>
 				</div>
 			</form>
 		</div>
