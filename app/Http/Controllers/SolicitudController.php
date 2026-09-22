@@ -41,6 +41,7 @@ class SolicitudController extends Controller
     public function update(Request $request, Solicitud $solicitud): JsonResponse
     {
         $data = $request->validate([
+            'identificacion' => ['sometimes', 'nullable', 'string', 'max:100'],
             'usuario_prestador_id' => ['sometimes', 'nullable', 'integer', 'exists:perfiles,id'],
             'fecha_inicio' => ['sometimes', 'required', 'date'],
             'fecha_fin' => ['sometimes', 'nullable', 'date', 'after_or_equal:fecha_inicio'],
@@ -63,6 +64,7 @@ class SolicitudController extends Controller
     private function rules(): array
     {
         return [
+            'identificacion' => ['nullable', 'string', 'max:100'],
             'tipo_solicitud' => ['required', Rule::in(['aula', 'inventario'])],
             'aula_id' => ['required_if:tipo_solicitud,aula', 'nullable', 'integer', 'exists:aulas,id'],
             'inventario_id' => ['required_if:tipo_solicitud,inventario', 'nullable', 'integer', 'exists:inventario,id'],

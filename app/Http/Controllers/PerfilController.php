@@ -12,7 +12,22 @@ class PerfilController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Perfil::query()->latest()->get());
+        return response()->json(Perfil::withCount('solicitudesRealizadas')->latest()->get());
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'usuario' => ['required', 'string', 'max:255', Rule::unique('perfiles', 'usuario')],
+            'email' => ['required', 'email', 'max:255', Rule::unique('perfiles', 'email')],
+            'tipo_usuario' => ['required', 'integer', 'between:1,3'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $data['password'] = Hash::make($data['password']);
+
+        return response()->json(Perfil::create($data), 201);
     }
 
     public function show(Perfil $perfil): JsonResponse
@@ -38,5 +53,12 @@ class PerfilController extends Controller
         $perfil->update($data);
 
         return response()->json($perfil->fresh());
+    }
+
+    public function destroy(Perfil $perfil): JsonResponse
+    {
+        $perfil->delete();
+
+        return response()->json(status: 204);
     }
 }

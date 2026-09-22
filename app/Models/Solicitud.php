@@ -13,6 +13,7 @@ class Solicitud extends Model
 
     protected $fillable = [
         'usuario_solicitante_id',
+        'identificacion',
         'usuario_prestador_id',
         'tipo_solicitud',
         'aula_id',
