@@ -39,7 +39,6 @@
 			<button class="auth-submit" type="submit">Entrar</button>
 		</form>
 
-		<p class="auth-footer">¿No tienes cuenta? <a class="auth-link" href="{{ route('register') }}">Regístrate</a></p>
 	</section>
 </main>
 @endsection

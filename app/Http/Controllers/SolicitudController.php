@@ -30,6 +30,7 @@ class SolicitudController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate($this->rules());
+        $data['usuario_prestador_id'] = $request->user()->getKey();
 
         $solicitud = DB::transaction(function () use ($data) {
             if ($data['tipo_solicitud'] === 'inventario') {
@@ -57,18 +58,85 @@ class SolicitudController extends Controller
 
     public function update(Request $request, Solicitud $solicitud): JsonResponse
     {
+        abort_if(in_array($solicitud->estado, ['finalizada', 'cancelada'], true), 422, 'Este prestamo ya no se puede editar.');
+
         $data = $request->validate([
             'identificacion' => ['sometimes', 'nullable', 'string', 'max:100'],
-            'usuario_prestador_id' => ['sometimes', 'nullable', 'integer', 'exists:perfiles,id'],
+            'tipo_solicitud' => ['required', Rule::in(['aula', 'inventario'])],
+            'aula_id' => ['required_if:tipo_solicitud,aula', 'nullable', 'integer', 'exists:aulas,id'],
+            'inventario_id' => ['required_if:tipo_solicitud,inventario', 'nullable', 'integer', 'exists:inventario,id'],
+            'cantidad' => ['required_if:tipo_solicitud,inventario', 'nullable', 'integer', 'min:1'],
             'fecha_inicio' => ['sometimes', 'required', 'date'],
             'fecha_fin' => ['sometimes', 'nullable', 'date', 'after_or_equal:fecha_inicio'],
-            'estado' => ['sometimes', Rule::in(['pendiente', 'activa', 'finalizada', 'cancelada'])],
             'descripcion' => ['sometimes', 'nullable', 'string'],
         ]);
 
-        $solicitud->update($data);
+        $data['aula_id'] = $data['tipo_solicitud'] === 'aula' ? $data['aula_id'] : null;
+        $data['inventario_id'] = $data['tipo_solicitud'] === 'inventario' ? $data['inventario_id'] : null;
+        $data['cantidad'] = $data['tipo_solicitud'] === 'inventario' ? (int) $data['cantidad'] : null;
 
-        return response()->json($solicitud->fresh()->load(['solicitante', 'prestador', 'aula.edificio', 'inventario']));
+        $updatedSolicitud = DB::transaction(function () use ($data, $solicitud) {
+            $lockedSolicitud = Solicitud::whereKey($solicitud->getKey())->lockForUpdate()->firstOrFail();
+
+            abort_if(in_array($lockedSolicitud->estado, ['finalizada', 'cancelada'], true), 422, 'Este prestamo ya no se puede editar.');
+
+            $oldInventoryId = $lockedSolicitud->tipo_solicitud === 'inventario' ? (int) $lockedSolicitud->inventario_id : null;
+            $newInventoryId = $data['tipo_solicitud'] === 'inventario' ? (int) $data['inventario_id'] : null;
+            $oldQuantity = $oldInventoryId ? (int) $lockedSolicitud->cantidad : 0;
+            $newQuantity = $newInventoryId ? (int) $data['cantidad'] : 0;
+            $inventoryIds = array_values(array_unique(array_filter([$oldInventoryId, $newInventoryId])));
+            sort($inventoryIds);
+
+            $inventories = Inventario::whereIn('id', $inventoryIds)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($inventoryIds as $inventoryId) {
+                $inventory = $inventories->get($inventoryId);
+                $availableQuantity = (int) $inventory->cantidad
+                    + ($inventoryId === $oldInventoryId ? $oldQuantity : 0)
+                    - ($inventoryId === $newInventoryId ? $newQuantity : 0);
+
+                abort_if($availableQuantity < 0, 422, 'No hay suficiente inventario disponible para este cambio.');
+
+                $inventory->update(['cantidad' => $availableQuantity]);
+            }
+
+            $lockedSolicitud->update($data);
+
+            return $lockedSolicitud->fresh()->load(['solicitante', 'prestador', 'aula.edificio', 'inventario']);
+        }, attempts: 3);
+
+        return response()->json($updatedSolicitud);
+    }
+
+    public function finalizar(Solicitud $solicitud): JsonResponse
+    {
+        $finalizedSolicitud = DB::transaction(function () use ($solicitud) {
+            $lockedSolicitud = Solicitud::whereKey($solicitud->getKey())->lockForUpdate()->firstOrFail();
+
+            if ($lockedSolicitud->estado === 'finalizada') {
+                return $lockedSolicitud->load(['solicitante', 'prestador', 'aula.edificio', 'inventario']);
+            }
+
+            abort_if($lockedSolicitud->estado === 'cancelada', 422, 'Un prestamo cancelado no se puede finalizar.');
+
+            if ($lockedSolicitud->tipo_solicitud === 'inventario') {
+                $inventory = Inventario::whereKey($lockedSolicitud->inventario_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $inventory->increment('cantidad', $lockedSolicitud->cantidad);
+            }
+
+            $lockedSolicitud->update(['estado' => 'finalizada']);
+
+            return $lockedSolicitud->fresh()->load(['solicitante', 'prestador', 'aula.edificio', 'inventario']);
+        }, attempts: 3);
+
+        return response()->json($finalizedSolicitud);
     }
 
     public function destroy(Solicitud $solicitud): JsonResponse

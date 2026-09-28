@@ -1,3 +1,5 @@
+import { validateForm } from './validaciones.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 	const aulasButton = document.querySelector('#inventoryModeAulas');
 	const resourcesButton = document.querySelector('#inventoryModeResources');
@@ -196,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.querySelector('#createBuildingForm')?.addEventListener('submit', async (event) => {
 		event.preventDefault();
 		clearFormError('buildingFormError');
+		if (!validateForm(event.currentTarget)) return;
 		try {
 			await apiRequest('/api/edificios', { method: 'POST', body: JSON.stringify({ nombre: document.querySelector('#buildingName').value, descripcion: document.querySelector('#buildingDescription').value || null }) });
 			event.target.reset();
@@ -224,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	classroomForm?.addEventListener('submit', async (event) => {
 		event.preventDefault();
 		clearFormError('classroomFormError');
+		if (!validateForm(event.currentTarget)) return;
 
 		try {
 			let buildingId = buildingSelect.value;
@@ -259,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	inventoryForm?.addEventListener('submit', async (event) => {
 		event.preventDefault();
 		clearFormError('inventoryFormError');
+		if (!validateForm(event.currentTarget)) return;
 
 		try {
 			await apiRequest('/api/inventario', {
@@ -281,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.querySelector('#editCatalogForm')?.addEventListener('submit', async (event) => {
 		event.preventDefault();
 		clearFormError('editCatalogFormError');
+		if (!validateForm(event.currentTarget)) return;
 		const type = document.querySelector('#editCatalogType').value;
 		const id = document.querySelector('#editCatalogId').value;
 		const payload = type === 'aula'

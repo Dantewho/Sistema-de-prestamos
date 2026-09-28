@@ -7,34 +7,33 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('prestamos.index')
-        : redirect()->route('login');
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/', fn () => redirect()->route('prestamos.index'));
+
+    Route::get('/prestamos', function () {
+        return view('crud.index');
+    })->name('prestamos.index');
+
+    Route::get('/inventario', function () {
+        return view('crud.inventario');
+    })->name('inventario.panel');
+
+    Route::get('/usuarios', function () {
+        return view('crud.usuarios');
+    })->name('usuarios.index');
+
+    Route::prefix('api')->group(function () {
+        Route::post('solicitudes/{solicitud}/finalizar', [SolicitudController::class, 'finalizar']);
+        Route::apiResource('edificios', EdificioController::class);
+        Route::apiResource('aulas', AulaController::class);
+        Route::apiResource('inventario', InventarioController::class);
+        Route::apiResource('solicitudes', SolicitudController::class)
+            ->parameters(['solicitudes' => 'solicitud']);
+        Route::apiResource('perfiles', PerfilController::class)
+            ->only(['index', 'show', 'store', 'update', 'destroy'])
+            ->parameters(['perfiles' => 'perfil']);
+    });
+
+    Route::get('/perfiles', fn () => redirect()->route('usuarios.index'))
+        ->name('perfiles.index');
 });
-
-Route::middleware('auth')->get('/prestamos', function () {
-    return view('crud.index');
-})->name('prestamos.index');
-
-Route::middleware('auth')->get('/inventario', function () {
-    return view('crud.inventario');
-})->name('inventario.panel');
-
-Route::middleware('auth')->get('/usuarios', function () {
-    return view('crud.usuarios');
-})->name('usuarios.index');
-
-Route::middleware('auth')->prefix('api')->group(function () {
-    Route::apiResource('edificios', EdificioController::class);
-    Route::apiResource('aulas', AulaController::class);
-    Route::apiResource('inventario', InventarioController::class);
-    Route::apiResource('solicitudes', SolicitudController::class);
-    Route::apiResource('perfiles', PerfilController::class)
-        ->only(['index', 'show', 'store', 'update', 'destroy'])
-        ->parameters(['perfiles' => 'perfil']);
-});
-
-Route::get('/perfiles', function () {
-    return view('crud.usuarios', compact('perfiles'));
-})->name('perfiles.index');

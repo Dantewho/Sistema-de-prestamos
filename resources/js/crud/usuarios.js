@@ -1,3 +1,5 @@
+import { validateForm } from './validaciones.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 	const tableBody = document.querySelector('#usersTableBody');
 	const search = document.querySelector('#userSearch');
@@ -35,10 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.querySelector('#createUserButton')?.addEventListener('click', () => { clearError('createUserFormError'); createModal?.show(); });
 	document.querySelector('#createUserForm')?.addEventListener('submit', async (event) => {
 		event.preventDefault(); clearError('createUserFormError');
+		if (!validateForm(event.currentTarget)) return;
 		try { await apiRequest('/api/perfiles', { method: 'POST', body: JSON.stringify({ name: document.querySelector('#newUserName').value, usuario: document.querySelector('#newUserUsername').value, email: document.querySelector('#newUserEmail').value, tipo_usuario: Number(document.querySelector('#newUserType').value), password: document.querySelector('#newUserPassword').value }) }); event.target.reset(); createModal?.hide(); await loadUsers(); } catch (error) { showError('createUserFormError', error); }
 	});
 	document.querySelector('#editUserForm')?.addEventListener('submit', async (event) => {
 		event.preventDefault(); clearError('editUserFormError'); const password = document.querySelector('#editUserPassword').value;
+		if (!validateForm(event.currentTarget)) return;
 		const payload = { name: document.querySelector('#editUserName').value, usuario: document.querySelector('#editUserUsername').value, email: document.querySelector('#editUserEmail').value, tipo_usuario: Number(document.querySelector('#editUserType').value) }; if (password) payload.password = password;
 		try { await apiRequest(`/api/perfiles/${document.querySelector('#editUserId').value}`, { method: 'PUT', body: JSON.stringify(payload) }); editModal?.hide(); await loadUsers(); } catch (error) { showError('editUserFormError', error); }
 	});

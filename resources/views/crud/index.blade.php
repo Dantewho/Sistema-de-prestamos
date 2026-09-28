@@ -6,6 +6,21 @@
 <div class="loan-app">
   @include('crud.modales.crearPrestamo')
 
+  <div aria-hidden="true" aria-labelledby="loanDetailsModalLabel" class="modal fade" id="loanDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content loan-modal">
+        <div class="modal-header loan-modal-header">
+          <div>
+            <span class="loan-eyebrow">Seguimiento</span>
+            <h2 class="modal-title h4 mb-0 mt-1" id="loanDetailsModalLabel">Detalle del prestamo</h2>
+          </div>
+          <button aria-label="Cerrar" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+        </div>
+        <div class="modal-body p-4" id="loanDetailsContent"></div>
+      </div>
+    </div>
+  </div>
+
   <header class="loan-hero">
     <div class="container py-5">
       <div class="row align-items-center g-4">
@@ -63,7 +78,7 @@
               <option>Todos</option>
               <option>Pendientes</option>
               <option>Activos</option>
-              <option>Finalizados</option>
+              <option>Finalizada</option>
               <option>Cancelados</option>
             </select>
           </div>
@@ -96,16 +111,17 @@
             <tr>
               <th>Nombre</th>
               <th>Equipo/Aula</th>
-              <th>Rol</th>
+              <th>Usuario</th>
               <th>Fecha</th>
               <th>Identificacion</th>
               <th>Prestado por</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="requestsTableBody">
             <tr>
-              <td class="loan-empty text-center" colspan="7">
+              <td class="loan-empty text-center" colspan="8">
                 <div class="loan-empty-icon">+</div>
                 <h3 class="h5 mt-3">Aun no tienes prestamos</h3>
                 <p class="mb-3">Crea tu primera solicitud para comenzar a gestionar tus recursos.</p>
