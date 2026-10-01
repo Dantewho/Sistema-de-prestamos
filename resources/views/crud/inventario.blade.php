@@ -23,6 +23,42 @@
 		@include('crud.modales.crear_inventario')
 		@include('crud.modales.editar_aulas_recursos')
 
+
+		     <section class="loan-panel mb-4" aria-labelledby="user-import-title">
+            <div class="loan-panel-heading">
+                <div><span class="loan-eyebrow">Carga de datos</span><h2 class="h4 mb-0 mt-1" id="user-import-title">Importar perfiles</h2></div>
+                <a href="{{ route('inventario.exportar') }}" class="btn btn-success">Exportar Excel</a>
+
+            </div>
+            <div class="p-4">
+                @if (session('status'))
+                    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+                @endif
+                @if ($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                <form action="{{ route('inventario.importar') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row g-3 align-items-end">
+                        <div class="col-lg-9">
+                            <label class="form-label" for="archivo">Archivo Excel o CSV</label>
+                            <input class="form-control" id="archivo" name="archivo" type="file" accept=".xlsx,.xls,.csv" required>
+                            <div class="form-text">Agrega el acrchivo Excel con el formato correcto.</div>
+                        </div>
+                        <div class="col-lg-3">
+                            <button class="btn btn-coral w-100" type="submit">Importar Inventario</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
 		<section class="loan-panel mb-4" aria-labelledby="inventory-filters-title">
 			<div class="loan-panel-heading">
 				<div>
@@ -55,7 +91,9 @@
 				</div>
 			</div>
 		</section>
-
+		<a href="{{ route('aulas.exportar') }}" class="btn btn-success">
+    Exportar Excel
+		</a>
 		<section class="loan-panel overflow-hidden" aria-labelledby="inventory-title">
 			<div class="loan-panel-heading">
 				<div>

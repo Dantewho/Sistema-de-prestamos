@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PerfilExport;
+use App\Imports\PerfilImport;
 use App\Models\Perfil;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PerfilController extends Controller
 {
@@ -60,5 +64,24 @@ class PerfilController extends Controller
         $perfil->delete();
 
         return response()->json(status: 204);
+    }
+
+    public function exportar()
+    {
+        return Excel::download(
+            new PerfilExport,
+            'perfiles.xlsx'
+        );
+    }
+
+    public function importar(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'archivo' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
+        ]);
+
+        Excel::import(new PerfilImport, $validated['archivo']);
+
+        return back()->with('status', 'Los perfiles se importaron correctamente.');
     }
 }

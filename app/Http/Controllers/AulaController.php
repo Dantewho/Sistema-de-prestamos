@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProductosExport;
 use App\Models\Aula;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AulaController extends Controller
 {
@@ -48,5 +50,13 @@ class AulaController extends Controller
         $aula->delete();
 
         return response()->json(status: 204);
+    }
+
+    public function exportar()
+    {
+        return Excel::download(
+            new ProductosExport,
+            'productos.xlsx'
+        );
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SolicitudExport;
+use App\Imports\SolicitudImport;
 use App\Models\Inventario;
 use App\Models\Solicitud;
 use Illuminate\Http\JsonResponse;
@@ -9,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SolicitudController extends Controller
 {
@@ -159,5 +162,17 @@ class SolicitudController extends Controller
             'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'descripcion' => ['nullable', 'string'],
         ];
+    }
+
+    public function exportar(){
+        return Excel::download(
+            new SolicitudExport,
+            'Solicitudes.xlsx'
+        );
+    }
+    public function importar(Request $request){
+
+        Excel::import(new SolicitudImport, $request->file('archivo'));
+        return back()->with('status', 'Las solicitudes se importaron correctamente.');
     }
 }

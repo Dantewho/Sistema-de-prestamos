@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Inventario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
+
+use App\Exports\InventarioExport;
+use App\Imports\InventarioImport;
 
 class InventarioController extends Controller
 {
@@ -47,5 +52,16 @@ class InventarioController extends Controller
         $inventario->delete();
 
         return response()->json(status: 204);
+    }
+    public function exportar(){
+        return Excel::download(
+            new InventarioExport,
+            'Inventario.xlsx'
+        );
+    }
+    public function importar(Request $request){
+
+        Excel::import(new InventarioImport, $request->file('archivo'));
+        return back()->with('status', 'El inventario se importó correctamente.');
     }
 }

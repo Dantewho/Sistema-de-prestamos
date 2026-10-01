@@ -8,6 +8,28 @@ use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/aulas/exportar', [AulaController::class, 'exportar'])
+        ->name('aulas.exportar');
+
+    Route::get('/perfiles/exportar', [PerfilController::class, 'exportar'])
+        ->name('perfiles.exportar');
+
+    Route::post('/perfiles/importar', [PerfilController::class, 'importar'])
+        ->name('perfiles.importar');
+
+    Route::get('/solicitudes/exportar', [SolicitudController::class, 'exportar'])
+        ->name('SolicitudExport.exportar');
+    
+    Route::post('/solicitudes/importar', [SolicitudController::class, 'importar'])
+        ->name('SolicitudImport.importar');
+
+
+    Route::get('/inventario/exportar', [InventarioController::class, 'exportar'])
+        ->name('inventario.exportar');
+    
+    Route::post('/inventario/importar', [InventarioController::class, 'importar'])
+        ->name('inventario.importar');
+
     Route::get('/', fn () => redirect()->route('prestamos.index'));
 
     Route::get('/prestamos', function () {
