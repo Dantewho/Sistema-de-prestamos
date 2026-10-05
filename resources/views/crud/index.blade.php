@@ -61,7 +61,7 @@
             <div class="loan-panel-heading">
                 <div><span class="loan-eyebrow">Carga de datos</span><h2 class="h4 mb-0 mt-1" id="user-import-title">Importar perfiles</h2></div>
                 <a href="{{ route('SolicitudExport.exportar') }}" class="btn btn-success">Exportar Excel</a>
-
+                <a href="{{ route('solicitudes.exportar-pdf') }}" class="btn btn-danger">Exportar PDF</a>
             </div>
             <div class="p-4">
                 @if (session('status'))

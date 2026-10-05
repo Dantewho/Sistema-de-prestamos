@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AulaController;
+use App\Http\Controllers\DownloadInvoiceController;
 use App\Http\Controllers\EdificioController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PerfilController;
@@ -8,6 +9,12 @@ use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/solicitudes/exportar-pdf', [DownloadInvoiceController::class, 'exportarTodas'])
+        ->name('solicitudes.exportar-pdf');
+
+    Route::get('/solicitudes/{solicitud}/pdf', DownloadInvoiceController::class)
+        ->name('solicitudes.pdf');
+
     Route::get('/aulas/exportar', [AulaController::class, 'exportar'])
         ->name('aulas.exportar');
 
@@ -19,14 +26,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/solicitudes/exportar', [SolicitudController::class, 'exportar'])
         ->name('SolicitudExport.exportar');
-    
+
     Route::post('/solicitudes/importar', [SolicitudController::class, 'importar'])
         ->name('SolicitudImport.importar');
 
-
     Route::get('/inventario/exportar', [InventarioController::class, 'exportar'])
         ->name('inventario.exportar');
-    
+
     Route::post('/inventario/importar', [InventarioController::class, 'importar'])
         ->name('inventario.importar');
 
